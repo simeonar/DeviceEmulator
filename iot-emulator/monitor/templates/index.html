@@ -3,9 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <title>IoT Emulator Monitor</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .device { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        .status { font-weight: bold; }
+        button { margin-right: 5px; }
+    </style>
 </head>
 <body>
     <h1>Device Emulator Monitor</h1>
-    <p>Status: OK</p>
+    <div id="devices"></div>
+    <script>
+        async function fetchDevices() {
+            const resp = await fetch('/api/devices');
+            const devices = await resp.json();
+            const container = document.getElementById('devices');
+            container.innerHTML = '';
+            devices.forEach(dev => {
+                const div = document.createElement('div');
+                div.className = 'device';
+                div.innerHTML = `
+                    <div><b>${dev.name}</b> (ID: ${dev.id}, Protocol: ${dev.protocol})</div>
+                    <div>Status: <span class="status">${dev.status}</span></div>
+                    <button onclick="startDevice('${dev.id}')">Start</button>
+                    <button onclick="stopDevice('${dev.id}')">Stop</button>
+                    <button onclick="showHistory('${dev.id}')">Show History</button>
+                    <div id="history-${dev.id}" style="margin-top:5px;"></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        async function startDevice(id) {
+            await fetch(`/api/devices/${id}/start`, {method: 'POST'});
+            fetchDevices();
+        }
+        async function stopDevice(id) {
+            await fetch(`/api/devices/${id}/stop`, {method: 'POST'});
+            fetchDevices();
+        }
+        async function showHistory(id) {
+            const resp = await fetch(`/api/devices/${id}/history`);
+            const history = await resp.json();
+            document.getElementById(`history-${id}`).innerText = JSON.stringify(history, null, 2);
+        }
+        fetchDevices();
+        setInterval(fetchDevices, 5000);
+    </script>
 </body>
 </html>

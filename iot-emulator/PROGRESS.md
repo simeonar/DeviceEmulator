@@ -16,6 +16,8 @@
 - [x] C++ REST API (rest_server) implemented and runs on http://localhost:8081
 - [x] Python backend_bridge integrated with C++ REST API via requests
 - [x] Web and CLI now work with real device backend through REST
+- [x] Added REST endpoints to Flask API for device start/stop/status/history (monitor/api.py)
+- [x] Changes committed to git
 
 ---
 
