@@ -1,12 +1,18 @@
 // Temperature sensor emulator
 #include "../core/device_base.hpp"
+
 #include <string>
 #include <iostream>
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <vector>
 
 class TemperatureSensor : public DeviceBase {
+private:
+    DeviceStatus status_;
+    std::atomic<bool> running_;
+    std::thread worker_;
 public:
     TemperatureSensor() : status_(DeviceStatus::Inactive), running_(false) {}
     void start() override {
@@ -29,7 +35,7 @@ public:
     }
     DeviceStatus getStatus() const override { return status_; }
     std::string getName() const override { return "TemperatureSensor"; }
-    std::string simulate(const std::string& scenario) {
+    std::string simulate(const std::string& scenario) override {
         if (scenario == "overheat") {
             return "TemperatureSensor: Overheat simulated!";
         } else if (scenario == "disconnect") {
@@ -40,9 +46,8 @@ public:
             return "TemperatureSensor: Unknown scenario: " + scenario;
         }
     }
+    std::vector<std::string> getScenarios() const override {
+        return {"overheat", "disconnect"};
+    }
     ~TemperatureSensor() { stop(); }
-private:
-    DeviceStatus status_;
-    std::atomic<bool> running_;
-    std::thread worker_;
 };
