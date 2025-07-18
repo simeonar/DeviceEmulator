@@ -51,6 +51,27 @@ cmake -S iot-emulator -B build && cmake --build build
 .venv/Scripts/python.exe iot-emulator/monitor/app.py
 ```
 
+## How to run C++ REST API and integrate with Python
+
+### Start C++ REST server
+
+Build and run the C++ REST server to provide device management API:
+
+```sh
+cmake -S iot-emulator -B build && cmake --build build
+build/core/Debug/rest_server.exe
+```
+
+The server will listen on http://localhost:8081. You can check available devices:
+- Open http://localhost:8081/devices in your browser
+- Or use curl: `curl http://localhost:8081/devices`
+
+### Python integration (backend_bridge)
+
+The Python backend_bridge module is configured to connect to the C++ REST API at http://localhost:8081. All web and CLI actions (list devices, run scenario) are now performed via real C++ backend.
+
+No additional configuration is needed if both servers run on the same machine and port.
+
 ## Console usage principles
 
 - The CLI supports two modes:

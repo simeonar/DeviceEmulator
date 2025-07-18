@@ -13,6 +13,9 @@
 - [x] DeviceBase/TemperatureSensor: поддержка сценариев (getScenarios)
 - [x] Проектирование REST API для управления устройствами и сценариями (Flask)
 - [x] Реализован Flask API (заглушки): список устройств, сценарии, запуск сценария, CRUD сценариев
+- [x] C++ REST API (rest_server) implemented and runs on http://localhost:8081
+- [x] Python backend_bridge integrated with C++ REST API via requests
+- [x] Web and CLI now work with real device backend through REST
 
 ---
 
