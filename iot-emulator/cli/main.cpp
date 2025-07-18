@@ -3,11 +3,29 @@
 #include <string>
 #include "../core/device_base.hpp"
 #include "../devices/temperature_sensor.cpp"
+#include <yaml-cpp/yaml.h>
+#include <fstream>
 int main(int argc, char* argv[]) {
     std::cout << "IoT Emulator CLI started." << std::endl;
+
+    // Load devices from YAML
     DeviceManager manager;
-    auto tempSensor = std::make_shared<TemperatureSensor>();
-    manager.registerDevice(tempSensor);
+    std::map<std::string, std::shared_ptr<DeviceBase>> device_map;
+    try {
+        YAML::Node config = YAML::LoadFile("../config/devices.yaml");
+        for (auto it = config.begin(); it != config.end(); ++it) {
+            std::string dev_name = it->first.as<std::string>();
+            std::string dev_class = it->second["class"].as<std::string>();
+            if (dev_class == "TemperatureSensor") {
+                auto dev = std::make_shared<TemperatureSensor>();
+                manager.registerDevice(dev);
+                device_map[dev_name] = dev;
+            }
+            // Здесь можно добавить другие типы устройств
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to load devices.yaml: " << e.what() << std::endl;
+    }
 
     auto print_statuses = [&manager]() {
         auto statuses = manager.getAllStatuses();
@@ -32,13 +50,25 @@ int main(int argc, char* argv[]) {
             print_statuses();
             return 0;
         } else if (cmd == "simulate") {
-            std::string scenario = (argc > 3 && std::string(argv[2]) == "--scenario") ? argv[3] : "";
+            std::string device = "temperature_sensor";
+            std::string scenario;
+            for (int i = 2; i < argc; ++i) {
+                std::string arg = argv[i];
+                if (arg == "--device" && i + 1 < argc) {
+                    device = argv[++i];
+                } else if (arg == "--scenario" && i + 1 < argc) {
+                    scenario = argv[++i];
+                }
+            }
             if (scenario.empty()) {
-                std::cout << "Usage: simulate --scenario <name>" << std::endl;
+                std::cout << "Usage: simulate --device <name> --scenario <name>" << std::endl;
                 return 1;
             }
-            // Only TemperatureSensor for now
-            std::cout << tempSensor->simulate(scenario) << std::endl;
+            if (device_map.count(device)) {
+                std::cout << device_map[device]->simulate(scenario) << std::endl;
+            } else {
+                std::cout << "Device not found: " << device << std::endl;
+            }
             return 0;
         } else {
             std::cout << "Unknown command: " << cmd << std::endl;
@@ -58,13 +88,28 @@ int main(int argc, char* argv[]) {
             } else if (input == "status") {
                 print_statuses();
             } else if (input.rfind("simulate", 0) == 0) {
-                // parse: simulate --scenario <name>
-                size_t pos = input.find("--scenario ");
-                if (pos != std::string::npos) {
-                    std::string scenario = input.substr(pos + 11);
-                    std::cout << tempSensor->simulate(scenario) << std::endl;
+                // parse: simulate --device <name> --scenario <name>
+                std::string device = "temperature_sensor";
+                std::string scenario;
+                size_t dev_pos = input.find("--device ");
+                size_t scen_pos = input.find("--scenario ");
+                if (dev_pos != std::string::npos) {
+                    size_t start = dev_pos + 9;
+                    size_t end = input.find(' ', start);
+                    device = input.substr(start, end - start);
+                }
+                if (scen_pos != std::string::npos) {
+                    size_t start = scen_pos + 11;
+                    scenario = input.substr(start);
+                    size_t space = scenario.find(' ');
+                    if (space != std::string::npos) scenario = scenario.substr(0, space);
+                }
+                if (scenario.empty()) {
+                    std::cout << "Usage: simulate --device <name> --scenario <name>" << std::endl;
+                } else if (device_map.count(device)) {
+                    std::cout << device_map[device]->simulate(scenario) << std::endl;
                 } else {
-                    std::cout << "Usage: simulate --scenario <name>" << std::endl;
+                    std::cout << "Device not found: " << device << std::endl;
                 }
             } else if (input.empty()) {
                 continue;
