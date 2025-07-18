@@ -1,13 +1,13 @@
-# Заглушка для интеграции с C++ backend (DeviceManager/DeviceRunner)
-# В будущем можно реализовать через pybind11, REST или IPC
+# Stub for integration with C++ backend (DeviceManager/DeviceRunner)
+# In the future, can be implemented via pybind11, REST, or IPC
 
 class BackendBridge:
     def __init__(self):
-        # Здесь можно инициализировать pybind11 binding или IPC клиент
+        # Here you can initialize pybind11 binding or IPC client
         pass
 
     def list_devices(self):
-        # TODO: получить список устройств из C++ backend
+        # TODO: get device list from C++ backend
         return [
             {
                 "id": "temperature_sensor",
@@ -20,24 +20,24 @@ class BackendBridge:
         ]
 
     def get_device(self, device_id):
-        # TODO: получить инфу по устройству из C++ backend
+        # TODO: get device info from C++ backend
         for dev in self.list_devices():
             if dev["id"] == device_id:
                 return dev
         return None
 
     def run_scenario(self, device_id, scenario):
-        # TODO: вызвать C++ backend для запуска сценария
+        # TODO: call C++ backend to run scenario
         dev = self.get_device(device_id)
         if not dev or scenario not in dev["scenarios"]:
             return False, "Device or scenario not found"
-        # Здесь должен быть реальный вызов
+        # Here should be a real call
         return True, f"Scenario '{scenario}' started for device '{device_id}'"
 
     def add_scenario(self, device_id, scenario):
-        # TODO: добавить сценарий через C++ backend
+        # TODO: add scenario via C++ backend
         return True, "Scenario added (stub)"
 
     def delete_scenario(self, device_id, scenario):
-        # TODO: удалить сценарий через C++ backend
+        # TODO: delete scenario via C++ backend
         return True, "Scenario deleted (stub)"

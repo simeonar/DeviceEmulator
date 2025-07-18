@@ -19,7 +19,7 @@ public:
     virtual DeviceStatus getStatus() const = 0;
     virtual std::string getName() const = 0;
     virtual std::string simulate(const std::string& scenario) { return "Not implemented"; }
-    // Возвращает список поддерживаемых сценариев
+    // Returns a list of supported scenarios
     virtual std::vector<std::string> getScenarios() const { return {}; }
     virtual ~DeviceBase() {}
 };

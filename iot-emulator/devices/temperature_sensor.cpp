@@ -21,7 +21,7 @@ public:
         running_ = true;
         worker_ = std::thread([this]() {
             while (running_) {
-                // Эмуляция публикации данных
+                // Emulate data publishing
                 int temp = 20 + rand() % 10;
                 std::cout << "[TemperatureSensor] Current temperature: " << temp << " C" << std::endl;
                 std::this_thread::sleep_for(std::chrono::seconds(2));

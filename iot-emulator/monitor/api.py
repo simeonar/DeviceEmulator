@@ -6,7 +6,7 @@ bridge = BackendBridge()
 
 @app.route("/api/devices", methods=["GET"])
 def get_devices():
-    # Список всех устройств с краткой инфой
+    # List all devices with brief info
     return jsonify([
         {"id": d["id"], "name": d["name"], "status": d["status"], "protocol": d["protocol"]}
         for d in bridge.list_devices()
@@ -14,7 +14,7 @@ def get_devices():
 
 @app.route("/api/devices/<device_id>", methods=["GET"])
 def get_device(device_id):
-    # Подробная инфа по устройству
+    # Detailed info about the device
     dev = bridge.get_device(device_id)
     if not dev:
         return jsonify({"error": "Device not found"}), 404
@@ -29,13 +29,13 @@ def get_device_scenarios(device_id):
 
 @app.route("/api/devices/<device_id>/scenarios/<scenario>", methods=["POST"])
 def run_device_scenario(device_id, scenario):
-    # Здесь будет вызов C++ backend для запуска сценария
+    # This is where the C++ backend will be called to run the scenario
     ok, msg = bridge.run_scenario(device_id, scenario)
     if not ok:
         return jsonify({"error": msg}), 404
     return jsonify({"result": msg})
 
-# --- CRUD для сценариев ---
+# --- CRUD for scenarios ---
 @app.route("/api/devices/<device_id>/scenarios", methods=["POST"])
 def add_scenario(device_id):
     scenario = request.json.get("scenario")
