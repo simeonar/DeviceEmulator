@@ -30,6 +30,7 @@ int main() {
                 {"id", name},
                 {"name", dev ? dev->getName() : name},
                 {"status", (int)runner},
+                {"protocol", "unknown"}, // TODO: set real protocol if available
                 {"scenarios", dev ? dev->getScenarios() : std::vector<std::string>{}}
             });
         }
