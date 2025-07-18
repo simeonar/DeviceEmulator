@@ -13,7 +13,6 @@ class BackendBridge:
         return resp.json()
 
     def get_device(self, device_id):
-        # В REST API нет отдельного endpoint, ищем по списку
         for dev in self.list_devices():
             if dev["id"] == device_id:
                 return dev
@@ -26,6 +25,38 @@ class BackendBridge:
             return True, resp.json().get("result", "OK")
         else:
             return False, resp.json().get("error", "Error")
+
+    def start_device(self, device_id):
+        url = f"{self.base_url}/devices/{device_id}/start"
+        resp = requests.post(url)
+        if resp.status_code == 200:
+            return True, resp.json().get("result", "OK")
+        else:
+            return False, resp.json().get("error", "Error")
+
+    def stop_device(self, device_id):
+        url = f"{self.base_url}/devices/{device_id}/stop"
+        resp = requests.post(url)
+        if resp.status_code == 200:
+            return True, resp.json().get("result", "OK")
+        else:
+            return False, resp.json().get("error", "Error")
+
+    def get_status(self, device_id):
+        url = f"{self.base_url}/devices/{device_id}/status"
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            return resp.json()
+        else:
+            return {"error": resp.json().get("error", "Error")}
+
+    def get_history(self, device_id):
+        url = f"{self.base_url}/devices/{device_id}/history"
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            return resp.json()
+        else:
+            return []
 
     def add_scenario(self, device_id, scenario):
         # Not implemented in C++ REST API (stub)

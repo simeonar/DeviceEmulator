@@ -20,6 +20,32 @@ def get_device(device_id):
         return jsonify({"error": "Device not found"}), 404
     return jsonify(dev)
 
+@app.route("/api/devices/<device_id>/start", methods=["POST"])
+def start_device(device_id):
+    # Start the device
+    ok, msg = bridge.start_device(device_id)
+    if not ok:
+        return jsonify({"error": msg}), 404
+    return jsonify({"result": msg})
+
+@app.route("/api/devices/<device_id>/stop", methods=["POST"])
+def stop_device(device_id):
+    # Stop the device
+    ok, msg = bridge.stop_device(device_id)
+    if not ok:
+        return jsonify({"error": msg}), 404
+    return jsonify({"result": msg})
+
+@app.route("/api/devices/<device_id>/status", methods=["GET"])
+def get_status(device_id):
+    # Get the current status of the device
+    return jsonify(bridge.get_status(device_id))
+
+@app.route("/api/devices/<device_id>/history", methods=["GET"])
+def get_history(device_id):
+    # Get the history of the device
+    return jsonify(bridge.get_history(device_id))
+
 @app.route("/api/devices/<device_id>/scenarios", methods=["GET"])
 def get_device_scenarios(device_id):
     dev = bridge.get_device(device_id)
