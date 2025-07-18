@@ -1,1 +1,9 @@
 # Device configurations
+temperature_sensor:
+  class: TemperatureSensor
+  protocol: mqtt
+  port: 1883
+  initial_state: inactive
+  scenarios:
+    - overheat
+    - disconnect

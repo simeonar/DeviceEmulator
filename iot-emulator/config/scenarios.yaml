@@ -1,1 +1,6 @@
 # Simulation scenarios
+temperature_sensor:
+  overheat:
+    description: Simulate sensor overheating
+  disconnect:
+    description: Simulate sensor disconnect
