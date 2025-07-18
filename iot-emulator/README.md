@@ -2,6 +2,28 @@
 
 Modular, extensible emulator for IoT devices with C++ core and Python monitoring.
 
+## System Architecture
+
+**Key components:**
+- **DeviceRunner**: Universal background runner for any device. Each device runs in its own thread, managed by DeviceManager.
+- **DeviceManager**: Centralized device registry and lifecycle manager. Provides access to all devices and their runners.
+- **REST API (Flask, Python)**: Unified backend for both web interface and CLI. Exposes endpoints for device status, user data, protocol info, scenario management (list, run, edit).
+- **Web interface (monitor)**: Visualizes device/user data, protocol/service info, allows scenario selection and editing for each device (dropdown + editor UI).
+- **Console (CLI)**: Allows direct device management, scenario execution, and data streaming via command line. CLI communicates with backend via REST API for full synchronization with web interface.
+
+**How it works:**
+- All device logic and scenario execution is managed by DeviceManager/DeviceRunner in C++.
+- Python Flask REST API provides endpoints for device list, status, user/service data, scenario management (list, run, CRUD).
+- Web UI and CLI both use the same REST API, so all actions (start/stop device, run scenario, edit scenario) are reflected everywhere.
+- Scenario list for each device is available as a dropdown in the web UI, with an editor for scenario content.
+- CLI can trigger scenarios and receive live data, fully synchronized with the web interface.
+
+**Benefits:**
+- Single source of truth for device state and scenarios
+- Easy extensibility (new devices, protocols, scenarios)
+- Unified user experience in web and CLI
+- Modular, scalable, and maintainable architecture
+
 ## DeviceRunner: универсальный запуск устройств
 
 DeviceRunner — это универсальный модуль для запуска любого устройства в отдельном фоновом потоке. Каждый эмулируемый девайс оборачивается в DeviceRunner, который управляет его жизненным циклом (start/stop) и обеспечивает независимую работу устройства в фоне. Это позволяет:
