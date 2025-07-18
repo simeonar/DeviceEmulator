@@ -1,6 +1,10 @@
- #pragma once
+// Forward declaration
+class DeviceRunner;
+
+#pragma once
+#include <memory>
 #include <string>
-// Abstract device class
+
 enum class DeviceStatus {
     Inactive,
     Running,
@@ -13,27 +17,23 @@ public:
     virtual void stop() = 0;
     virtual DeviceStatus getStatus() const = 0;
     virtual std::string getName() const = 0;
+    virtual std::string simulate(const std::string& scenario) { return "Not implemented"; }
     virtual ~DeviceBase() {}
 };
 
 // Simple device manager for demonstration
-#include <vector>
-#include <memory>
 #include <map>
+#include <memory>
 #include <string>
 
 class DeviceManager {
 public:
-    void registerDevice(std::shared_ptr<DeviceBase> device) {
-        devices_[device->getName()] = device;
-    }
-    std::map<std::string, DeviceStatus> getAllStatuses() const {
-        std::map<std::string, DeviceStatus> result;
-        for (const auto& [name, dev] : devices_) {
-            result[name] = dev->getStatus();
-        }
-        return result;
-    }
+    void registerDevice(const std::string& name, std::shared_ptr<DeviceBase> device);
+    void startDevice(const std::string& name);
+    void stopDevice(const std::string& name);
+    std::map<std::string, DeviceStatus> getAllStatuses() const;
+    std::shared_ptr<DeviceBase> getDevice(const std::string& name);
+    std::shared_ptr<DeviceRunner> getRunner(const std::string& name);
 private:
-    std::map<std::string, std::shared_ptr<DeviceBase>> devices_;
+    std::map<std::string, std::shared_ptr<DeviceRunner>> runners_;
 };

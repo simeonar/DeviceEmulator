@@ -7,6 +7,9 @@
 - [x] CMake and Python environment configured
 - [x] Build/test run and working
 - [x] Device status tracking and DeviceManager implemented
+- [x] Universal DeviceRunner implemented for modular device execution (background thread)
+- [x] DeviceManager refactored to use DeviceRunner for each device
+- [x] Build system and includes refactored for modularity (DeviceRunner in separate file)
 
 ---
 

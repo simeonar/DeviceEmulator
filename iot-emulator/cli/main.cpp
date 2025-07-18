@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "../core/device_base.hpp"
+#include "../core/device_runner.hpp"
 #include "../devices/temperature_sensor.cpp"
 #include <yaml-cpp/yaml.h>
 #include <fstream>
@@ -10,7 +11,6 @@ int main(int argc, char* argv[]) {
 
     // Load devices from YAML
     DeviceManager manager;
-    std::map<std::string, std::shared_ptr<DeviceBase>> device_map;
     try {
         YAML::Node config = YAML::LoadFile("../config/devices.yaml");
         for (auto it = config.begin(); it != config.end(); ++it) {
@@ -18,8 +18,7 @@ int main(int argc, char* argv[]) {
             std::string dev_class = it->second["class"].as<std::string>();
             if (dev_class == "TemperatureSensor") {
                 auto dev = std::make_shared<TemperatureSensor>();
-                manager.registerDevice(dev);
-                device_map[dev_name] = dev;
+                manager.registerDevice(dev_name, dev);
             }
             // Здесь можно добавить другие типы устройств
         }
@@ -49,6 +48,25 @@ int main(int argc, char* argv[]) {
         } else if (cmd == "status") {
             print_statuses();
             return 0;
+        } else if (cmd == "start") {
+            std::string device = "temperature_sensor";
+            for (int i = 2; i < argc; ++i) {
+                std::string arg = argv[i];
+                if (arg == "--device" && i + 1 < argc) {
+                    device = argv[++i];
+                }
+            }
+            if (manager.getRunner(device)) {
+                std::cout << "Starting device: " << device << std::endl;
+                manager.startDevice(device);
+                std::cout << "Press Ctrl+C to stop." << std::endl;
+                while (manager.getDevice(device) && manager.getDevice(device)->getStatus() == DeviceStatus::Running) {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
+            } else {
+                std::cout << "Device not found: " << device << std::endl;
+            }
+            return 0;
         } else if (cmd == "simulate") {
             std::string device = "temperature_sensor";
             std::string scenario;
@@ -64,8 +82,8 @@ int main(int argc, char* argv[]) {
                 std::cout << "Usage: simulate --device <name> --scenario <name>" << std::endl;
                 return 1;
             }
-            if (device_map.count(device)) {
-                std::cout << device_map[device]->simulate(scenario) << std::endl;
+            if (manager.getDevice(device)) {
+                std::cout << manager.getDevice(device)->simulate(scenario) << std::endl;
             } else {
                 std::cout << "Device not found: " << device << std::endl;
             }
@@ -106,8 +124,8 @@ int main(int argc, char* argv[]) {
                 }
                 if (scenario.empty()) {
                     std::cout << "Usage: simulate --device <name> --scenario <name>" << std::endl;
-                } else if (device_map.count(device)) {
-                    std::cout << device_map[device]->simulate(scenario) << std::endl;
+                } else if (manager.getDevice(device)) {
+                    std::cout << manager.getDevice(device)->simulate(scenario) << std::endl;
                 } else {
                     std::cout << "Device not found: " << device << std::endl;
                 }
