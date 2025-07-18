@@ -38,10 +38,10 @@
 
         function renderScenarios(dev) {
             if (Array.isArray(dev.scenarios) && dev.scenarios.length > 0) {
-                return `<span class='scenarios-title'>Сценарии:</span>` +
-                    dev.scenarios.map(s => `<button title='Запустить сценарий' onclick=\"runScenario('${dev.id}','${s}')\">▶ ${s}</button>`).join(' ');
+                return `<span class='scenarios-title'>Scenarios:</span>` +
+                    dev.scenarios.map(s => `<button title='Run scenario' onclick=\"runScenario('${dev.id}','${s}')\">▶ ${s}</button>`).join(' ');
             } else {
-                return '<i>Нет сценариев</i>';
+                return '<i>No scenarios</i>';
             }
         }
 
@@ -51,12 +51,12 @@
             div.setAttribute('data-id', dev.id);
             div.innerHTML = `
                 <div class="dev-header"><b>${dev.name}</b></div>
-                <div class="dev-meta">ID: <span>${dev.id}</span> | Протокол: <span>${dev.protocol}</span></div>
-                <div>Статус: <span class="status ${statusClass[dev.status] || ''}">${statusMap[dev.status] || dev.status}</span></div>
+                <div class="dev-meta">ID: <span>${dev.id}</span> | Protocol: <span>${dev.protocol}</span></div>
+                <div>Status: <span class="status ${statusClass[dev.status] || ''}">${statusMap[dev.status] || dev.status}</span></div>
                 <div class="scenarios">${renderScenarios(dev)}</div>
-                <button title="Запустить" onclick="startDevice('${dev.id}')">▶ Старт</button>
-                <button title="Остановить" onclick="stopDevice('${dev.id}')">■ Стоп</button>
-                <button title="Показать историю" onclick="showHistory('${dev.id}')">📈 История</button>
+                <button title="Start" onclick="startDevice('${dev.id}')">▶ S</button>
+                <button title="Stop" onclick="stopDevice('${dev.id}')">■ Stop</button>
+                <button title="Show history" onclick="showHistory('${dev.id}')">📈 History</button>
                 <div id="history-${dev.id}" style="margin-top:5px;"></div>
             `;
             document.getElementById('devices').appendChild(div);
@@ -65,7 +65,6 @@
         function updateDevice(dev) {
             const div = document.querySelector(`[data-id="${dev.id}"]`);
             if (!div) return;
-            // Обновляем только статус и сценарии
             const statusSpan = div.querySelector('.status');
             if (statusSpan.innerText !== (statusMap[dev.status] || dev.status)) {
                 statusSpan.innerText = statusMap[dev.status] || dev.status;
@@ -90,7 +89,6 @@
                     deviceMap.set(dev.id, dev);
                 }
             });
-            // Удаляем устройства, которых больше нет
             document.querySelectorAll('.device').forEach(div => {
                 const id = div.getAttribute('data-id');
                 if (!ids.has(id)) {
@@ -125,11 +123,11 @@
             const history = await resp.json();
             const cont = document.getElementById(`history-${id}`);
             if (!Array.isArray(history) || history.length === 0) {
-                cont.innerHTML = '<div class="history-title">История пуста</div>';
+                cont.innerHTML = '<div class="history-title">History is empty</div>';
                 return;
             }
-            let html = `<div class='history-title'>История измерений <button class='close-btn' onclick=\"closeHistory('${id}')\">×</button></div>`;
-            html += `<table class='history-table'><tr><th>Время</th><th>Значение</th></tr>`;
+            let html = `<div class='history-title'>Measurement history <button class='close-btn' onclick=\"closeHistory('${id}')\">×</button></div>`;
+            html += `<table class='history-table'><tr><th>Time</th><th>Value</th></tr>`;
             for (const rec of history) {
                 html += `<tr><td>${rec.timestamp.replace('T',' ')}</td><td>${rec.value}</td></tr>`;
             }

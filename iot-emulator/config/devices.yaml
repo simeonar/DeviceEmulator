@@ -1,4 +1,5 @@
 # Device configurations
+
 temperature_sensor:
   class: TemperatureSensor
   protocol: mqtt
@@ -7,3 +8,12 @@ temperature_sensor:
   scenarios:
     - overheat
     - disconnect
+
+pressure_valve:
+  class: PressureValve
+  protocol: opcua
+  port: 4840
+  initial_state: inactive
+  scenarios:
+    - leak
+    - jam

@@ -7,6 +7,7 @@
 #include <map>
 #include <yaml-cpp/yaml.h>
 #include "../devices/temperature_sensor.cpp"
+#include "../devices/pressure_valve.cpp"
 #include <iostream>
 
 using json = nlohmann::json;
@@ -17,10 +18,22 @@ DeviceManager manager;
 void setup_example_devices() {
     try {
         YAML::Node config = YAML::LoadFile("iot-emulator/config/devices.yaml");
-        auto temp_cfg = config["temperature_sensor"];
-        std::string protocol = temp_cfg["protocol"] ? temp_cfg["protocol"].as<std::string>() : "unknown";
-        auto temp = std::make_shared<TemperatureSensor>(protocol);
-        manager.registerDevice("temperature_sensor", temp);
+        for (auto it = config.begin(); it != config.end(); ++it) {
+            std::string dev_id = it->first.as<std::string>();
+            auto dev_cfg = it->second;
+            std::string dev_class = dev_cfg["class"] ? dev_cfg["class"].as<std::string>() : "";
+            std::string protocol = dev_cfg["protocol"] ? dev_cfg["protocol"].as<std::string>() : "unknown";
+            std::shared_ptr<DeviceBase> dev_ptr;
+            if (dev_class == "TemperatureSensor") {
+                dev_ptr = std::make_shared<TemperatureSensor>(protocol);
+            } else if (dev_class == "PressureValve") {
+                dev_ptr = std::make_shared<PressureValve>(protocol);
+            } else {
+                std::cerr << "Unknown device class: " << dev_class << std::endl;
+                continue;
+            }
+            manager.registerDevice(dev_id, dev_ptr);
+        }
     } catch (const std::exception& e) {
         std::cerr << "YAML error: " << e.what() << std::endl;
         abort();
