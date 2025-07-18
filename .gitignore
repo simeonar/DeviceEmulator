@@ -1,0 +1,31 @@
+# C++ build
+/build/
+CMakeFiles/
+CMakeCache.txt
+*.obj
+*.exe
+*.lib
+*.dll
+*.pdb
+*.sln
+*.vcxproj*
+*.user
+*.log
+*.vs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Other
+*.swp
+*.swo
+.idea/
+.vscode/

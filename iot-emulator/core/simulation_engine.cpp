@@ -1,0 +1,3 @@
+// Simulation engine logic
+#include "device_base.hpp"
+// ...implementation placeholder...
