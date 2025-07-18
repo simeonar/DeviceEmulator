@@ -72,6 +72,32 @@ The Python backend_bridge module is configured to connect to the C++ REST API at
 
 No additional configuration is needed if both servers run on the same machine and port.
 
+## How to run MQTT broker for device emulation
+
+To test MQTT publishing from devices (e.g., TemperatureSensor), you need a running MQTT broker. The recommended way is to use Mosquitto in Docker:
+
+```sh
+# Start MQTT broker (Mosquitto) in Docker:
+docker run -d --name iot-mqtt-broker -p 1883:1883 eclipse-mosquitto
+```
+
+- The broker will be available at `127.0.0.1:1883`.
+- You can use this address in your `devices.yaml` config (see `mqtt.host` and `mqtt.port`).
+- Default topic for temperature sensor: `sensors/temperature`.
+
+To check published messages, you can use any MQTT client, for example:
+
+```sh
+# Subscribe to the topic using mosquitto_sub:
+mosquitto_sub -h 127.0.0.1 -p 1883 -t sensors/temperature
+```
+
+To stop and remove the broker:
+```sh
+docker stop iot-mqtt-broker
+docker rm iot-mqtt-broker
+```
+
 ## Console usage principles
 
 - The CLI supports two modes:

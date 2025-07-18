@@ -4,6 +4,10 @@ temperature_sensor:
   class: TemperatureSensor
   protocol: mqtt
   port: 1883
+  mqtt:
+    host: 127.0.0.1
+    port: 1883
+    topic: sensors/temperature
   initial_state: inactive
   scenarios:
     - overheat
