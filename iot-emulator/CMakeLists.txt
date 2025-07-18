@@ -9,6 +9,8 @@ add_subdirectory(devices)
 add_subdirectory(protocols/mqtt)
 add_subdirectory(protocols/opcua)
 add_subdirectory(protocols/rest)
+
 add_subdirectory(cli)
+add_subdirectory(tests)
 
 # Optionally add tests, etc.
