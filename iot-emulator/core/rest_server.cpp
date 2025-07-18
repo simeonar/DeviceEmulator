@@ -5,7 +5,9 @@
 #include <nlohmann/json.hpp>
 #include <memory>
 #include <map>
+#include <yaml-cpp/yaml.h>
 #include "../devices/temperature_sensor.cpp"
+#include <iostream>
 
 using json = nlohmann::json;
 using namespace httplib;
@@ -13,9 +15,16 @@ using namespace httplib;
 DeviceManager manager;
 
 void setup_example_devices() {
-    // Example: register a temperature sensor
-    auto temp = std::make_shared<TemperatureSensor>();
-    manager.registerDevice("temperature_sensor", temp);
+    try {
+        YAML::Node config = YAML::LoadFile("iot-emulator/config/devices.yaml");
+        auto temp_cfg = config["temperature_sensor"];
+        std::string protocol = temp_cfg["protocol"] ? temp_cfg["protocol"].as<std::string>() : "unknown";
+        auto temp = std::make_shared<TemperatureSensor>(protocol);
+        manager.registerDevice("temperature_sensor", temp);
+    } catch (const std::exception& e) {
+        std::cerr << "YAML error: " << e.what() << std::endl;
+        abort();
+    }
 }
 
 int main() {
@@ -30,7 +39,7 @@ int main() {
                 {"id", name},
                 {"name", dev ? dev->getName() : name},
                 {"status", (int)runner},
-                {"protocol", "unknown"}, // TODO: set real protocol if available
+                {"protocol", dev ? dev->getProtocol() : "unknown"},
                 {"scenarios", dev ? dev->getScenarios() : std::vector<std::string>{}}
             });
         }

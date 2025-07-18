@@ -21,6 +21,7 @@ public:
     virtual std::string simulate(const std::string& scenario) { return "Not implemented"; }
     // Returns a list of supported scenarios
     virtual std::vector<std::string> getScenarios() const { return {}; }
+    virtual std::string getProtocol() const { return "unknown"; }
     virtual ~DeviceBase() {}
 };
 

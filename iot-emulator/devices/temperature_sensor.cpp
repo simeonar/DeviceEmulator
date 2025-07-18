@@ -13,8 +13,9 @@ private:
     DeviceStatus status_;
     std::atomic<bool> running_;
     std::thread worker_;
+    std::string protocol_;
 public:
-    TemperatureSensor() : status_(DeviceStatus::Inactive), running_(false) {}
+    TemperatureSensor(const std::string& protocol = "unknown") : status_(DeviceStatus::Inactive), running_(false), protocol_(protocol) {}
     void start() override {
         if (status_ == DeviceStatus::Running) return;
         status_ = DeviceStatus::Running;
@@ -35,6 +36,7 @@ public:
     }
     DeviceStatus getStatus() const override { return status_; }
     std::string getName() const override { return "TemperatureSensor"; }
+    std::string getProtocol() const override { return protocol_; }
     std::string simulate(const std::string& scenario) override {
         if (scenario == "overheat") {
             return "TemperatureSensor: Overheat simulated!";

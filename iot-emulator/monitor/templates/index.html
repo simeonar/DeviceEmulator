@@ -4,47 +4,140 @@
     <meta charset="UTF-8">
     <title>IoT Emulator Monitor</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .device { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        body { font-family: Arial, sans-serif; background: #f7f7fa; margin: 0; }
+        h1 { text-align: center; margin-top: 20px; }
+        #devices { max-width: 700px; margin: 30px auto; }
+        .device { border: 1px solid #b3b3cc; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px #0001; padding: 18px 20px 12px 20px; margin: 18px 0; transition: opacity 0.3s, background 0.3s; opacity: 1; position: relative; }
+        .device.removed { opacity: 0; }
         .status { font-weight: bold; }
-        button { margin-right: 5px; }
+        .status.running { color: #2e8b57; }
+        .status.stopped { color: #b22222; }
+        .status.idle { color: #888; }
+        .status.error { color: #d2691e; }
+        .dev-header { font-size: 1.1em; margin-bottom: 6px; }
+        .dev-meta { color: #666; font-size: 0.95em; margin-bottom: 8px; }
+        button { margin: 4px 6px 4px 0; padding: 5px 14px; border-radius: 5px; border: 1px solid #b3b3cc; background: #f0f0fa; cursor: pointer; transition: background 0.2s; font-size: 1em; }
+        button:hover { background: #e0e0f7; }
+        .scenarios { margin: 10px 0 6px 0; }
+        .scenarios-title { font-weight: bold; margin-right: 8px; }
+        .history-table { border-collapse: collapse; width: 100%; margin-top: 8px; background: #fafaff; }
+        .history-table th, .history-table td { border: 1px solid #e0e0e0; padding: 4px 8px; text-align: left; font-size: 0.97em; }
+        .history-table th { background: #f0f0fa; }
+        .history-title { font-weight: bold; margin-top: 10px; }
+        .close-btn { float: right; background: #f7f7fa; border: none; color: #888; font-size: 1.2em; cursor: pointer; margin-top: -6px; }
+        .close-btn:hover { color: #b22222; background: #f0e0e0; }
     </style>
 </head>
 <body>
-    <h1>Device Emulator Monitor</h1>
+    <h1>IoT Device Emulator</h1>
     <div id="devices"></div>
     <script>
+        const statusMap = {"0": "Stopped", "1": "Running", "2": "Idle", "3": "Error"};
+        const statusClass = {"0": "stopped", "1": "running", "2": "idle", "3": "error"};
+        const deviceMap = new Map();
+
+        function renderScenarios(dev) {
+            if (Array.isArray(dev.scenarios) && dev.scenarios.length > 0) {
+                return `<span class='scenarios-title'>Сценарии:</span>` +
+                    dev.scenarios.map(s => `<button title='Запустить сценарий' onclick=\"runScenario('${dev.id}','${s}')\">▶ ${s}</button>`).join(' ');
+            } else {
+                return '<i>Нет сценариев</i>';
+            }
+        }
+
+        function renderDevice(dev) {
+            const div = document.createElement('div');
+            div.className = 'device';
+            div.setAttribute('data-id', dev.id);
+            div.innerHTML = `
+                <div class="dev-header"><b>${dev.name}</b></div>
+                <div class="dev-meta">ID: <span>${dev.id}</span> | Протокол: <span>${dev.protocol}</span></div>
+                <div>Статус: <span class="status ${statusClass[dev.status] || ''}">${statusMap[dev.status] || dev.status}</span></div>
+                <div class="scenarios">${renderScenarios(dev)}</div>
+                <button title="Запустить" onclick="startDevice('${dev.id}')">▶ Старт</button>
+                <button title="Остановить" onclick="stopDevice('${dev.id}')">■ Стоп</button>
+                <button title="Показать историю" onclick="showHistory('${dev.id}')">📈 История</button>
+                <div id="history-${dev.id}" style="margin-top:5px;"></div>
+            `;
+            document.getElementById('devices').appendChild(div);
+        }
+
+        function updateDevice(dev) {
+            const div = document.querySelector(`[data-id="${dev.id}"]`);
+            if (!div) return;
+            // Обновляем только статус и сценарии
+            const statusSpan = div.querySelector('.status');
+            if (statusSpan.innerText !== (statusMap[dev.status] || dev.status)) {
+                statusSpan.innerText = statusMap[dev.status] || dev.status;
+                statusSpan.className = 'status ' + (statusClass[dev.status] || '');
+                div.style.background = '#e6ffe6';
+                setTimeout(() => div.style.background = '', 300);
+            }
+            div.querySelector('.scenarios').innerHTML = renderScenarios(dev);
+        }
+
         async function fetchDevices() {
             const resp = await fetch('/api/devices');
             const devices = await resp.json();
-            const container = document.getElementById('devices');
-            container.innerHTML = '';
+            const ids = new Set();
             devices.forEach(dev => {
-                const div = document.createElement('div');
-                div.className = 'device';
-                div.innerHTML = `
-                    <div><b>${dev.name}</b> (ID: ${dev.id}, Protocol: ${dev.protocol})</div>
-                    <div>Status: <span class="status">${dev.status}</span></div>
-                    <button onclick="startDevice('${dev.id}')">Start</button>
-                    <button onclick="stopDevice('${dev.id}')">Stop</button>
-                    <button onclick="showHistory('${dev.id}')">Show History</button>
-                    <div id="history-${dev.id}" style="margin-top:5px;"></div>
-                `;
-                container.appendChild(div);
+                ids.add(dev.id);
+                if (!deviceMap.has(dev.id)) {
+                    renderDevice(dev);
+                    deviceMap.set(dev.id, dev);
+                } else {
+                    updateDevice(dev);
+                    deviceMap.set(dev.id, dev);
+                }
+            });
+            // Удаляем устройства, которых больше нет
+            document.querySelectorAll('.device').forEach(div => {
+                const id = div.getAttribute('data-id');
+                if (!ids.has(id)) {
+                    div.classList.add('removed');
+                    setTimeout(() => div.remove(), 300);
+                    deviceMap.delete(id);
+                }
             });
         }
         async function startDevice(id) {
             await fetch(`/api/devices/${id}/start`, {method: 'POST'});
-            fetchDevices();
+            await updateDeviceFromServer(id);
         }
         async function stopDevice(id) {
             await fetch(`/api/devices/${id}/stop`, {method: 'POST'});
-            fetchDevices();
+            await updateDeviceFromServer(id);
+        }
+        async function runScenario(id, scenario) {
+            await fetch(`/api/devices/${id}/scenarios/${scenario}`, {method: 'POST'});
+            await updateDeviceFromServer(id);
+        }
+        async function updateDeviceFromServer(id) {
+            const resp = await fetch(`/api/devices/${id}`);
+            if (resp.ok) {
+                const dev = await resp.json();
+                updateDevice(dev);
+                deviceMap.set(dev.id, dev);
+            }
         }
         async function showHistory(id) {
             const resp = await fetch(`/api/devices/${id}/history`);
             const history = await resp.json();
-            document.getElementById(`history-${id}`).innerText = JSON.stringify(history, null, 2);
+            const cont = document.getElementById(`history-${id}`);
+            if (!Array.isArray(history) || history.length === 0) {
+                cont.innerHTML = '<div class="history-title">История пуста</div>';
+                return;
+            }
+            let html = `<div class='history-title'>История измерений <button class='close-btn' onclick=\"closeHistory('${id}')\">×</button></div>`;
+            html += `<table class='history-table'><tr><th>Время</th><th>Значение</th></tr>`;
+            for (const rec of history) {
+                html += `<tr><td>${rec.timestamp.replace('T',' ')}</td><td>${rec.value}</td></tr>`;
+            }
+            html += '</table>';
+            cont.innerHTML = html;
+        }
+        function closeHistory(id) {
+            document.getElementById(`history-${id}`).innerHTML = '';
         }
         fetchDevices();
         setInterval(fetchDevices, 5000);

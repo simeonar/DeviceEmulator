@@ -10,10 +10,14 @@ def index():
 
 @app.route("/api/devices", methods=["GET"])
 def get_devices():
-    return jsonify([
-        {"id": d["id"], "name": d["name"], "status": d["status"], "protocol": d["protocol"]}
-        for d in bridge.list_devices()
-    ])
+    devices = []
+    for d in bridge.list_devices():
+        dev = d.copy()
+        # Получаем сценарии для каждого устройства
+        full = bridge.get_device(dev["id"])
+        dev["scenarios"] = full.get("scenarios", []) if full else []
+        devices.append(dev)
+    return jsonify(devices)
 
 @app.route("/api/devices/<device_id>", methods=["GET"])
 def get_device(device_id):
