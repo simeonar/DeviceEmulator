@@ -18,6 +18,7 @@ int main(int argc, char* argv[]) {
             std::string dev_class = it->second["class"].as<std::string>();
             if (dev_class == "TemperatureSensor") {
                 auto dev = std::make_shared<TemperatureSensor>();
+                dev->setParametersFromYaml(it->second);
                 manager.registerDevice(dev_name, dev);
             }
             // Здесь можно добавить другие типы устройств
