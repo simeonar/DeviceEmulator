@@ -1,0 +1,9 @@
+# OPC UA nodes for bridge/SCADA
+# Описывает endpoint и nodeId для всех устройств, с которых нужно снимать данные через OPC UA
+
+- name: PressureValve
+  endpoint: opc.tcp://127.0.0.1:4840
+  nodes:
+    - nodeid: ns=2;s=Pressure
+      mqtt_topic: sensors/pressure
+# Добавляйте новые устройства и nodeId по аналогии
