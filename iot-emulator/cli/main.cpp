@@ -4,6 +4,7 @@
 #include "../core/device_base.hpp"
 #include "../core/device_runner.hpp"
 #include "../devices/temperature_sensor.cpp"
+#include "../devices/pressure_valve.cpp"
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 int main(int argc, char* argv[]) {
@@ -28,6 +29,11 @@ int main(int argc, char* argv[]) {
                 auto dev = std::make_shared<TemperatureSensor>();
                 std::cout << "[DEBUG] Calling setParametersFromYaml for " << dev_name << std::endl;
                 dev->setParametersFromYaml(it->second);
+                manager.registerDevice(dev_name, dev);
+            }
+            else if (dev_class == "PressureValve") {
+                auto dev = std::make_shared<PressureValve>();
+                // Если потребуется, можно добавить setParametersFromYaml
                 manager.registerDevice(dev_name, dev);
             }
             // Add other device types here
