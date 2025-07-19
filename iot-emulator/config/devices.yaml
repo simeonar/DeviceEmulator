@@ -1,13 +1,24 @@
 # Device configurations
 
+
 temperature_sensor:
   class: TemperatureSensor
   protocol: mqtt
-  port: 1883
   mqtt:
     host: 127.0.0.1
     port: 1883
     topic: sensors/temperature
+  parameters:
+    temperature:
+      min: 20
+      max: 30
+      step: 0.5
+      unit: C
+    humidity:
+      min: 40
+      max: 60
+      step: 1
+      unit: '%'
   initial_state: inactive
   scenarios:
     - overheat
