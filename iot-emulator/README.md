@@ -37,18 +37,121 @@ DeviceRunner — это универсальный модуль для запу�
 - Остановка устройства корректно завершает поток и освобождает ресурсы.
 - DeviceManager хранит map<имя, shared_ptr<DeviceRunner>> и управляет всеми устройствами через раннеры.
 
+
+## How to add and configure a device
+
+All устройства описываются в файле `config/devices.yaml`. Пример:
+
+```yaml
+temperature_sensor:
+  class: TemperatureSensor
+  protocol: mqtt
+  port: 1883
+  mqtt:
+    host: 127.0.0.1
+    port: 1883
+    topic: sensors/temperature
+  initial_state: inactive
+  scenarios:
+    - overheat
+    - disconnect
+
+pressure_valve:
+  class: PressureValve
+  protocol: opcua
+  port: 4840
+  initial_state: inactive
+  scenarios:
+    - leak
+    - jam
+```
+
+**Добавить новое устройство:**
+1. Добавьте секцию с уникальным именем (например, `my_device:`).
+2. Укажите класс устройства (`class`), поддерживаемый протокол (`protocol`: mqtt, opcua, rest и др.), порт и параметры протокола.
+3. Для MQTT укажите параметры в секции `mqtt` (host, port, topic).
+4. Для OPC UA — только порт и имя класса.
+5. Добавьте список сценариев (scenarios), если нужно.
+
+**Пример для MQTT:**
+```yaml
+my_mqtt_device:
+  class: MyMqttDevice
+  protocol: mqtt
+  mqtt:
+    host: 127.0.0.1
+    port: 1883
+    topic: sensors/mydevice
+  initial_state: active
+  scenarios:
+    - custom_scenario
+```
+
+**Пример для OPC UA:**
+```yaml
+my_opcua_device:
+  class: MyOpcuaDevice
+  protocol: opcua
+  port: 4840
+  initial_state: active
+  scenarios:
+    - opcua_scenario
+```
+
+После изменения `devices.yaml` перезапустите сервисы для применения изменений.
+
+---
+
 ## How to build and run
 
-### Build C++ project
 
+### Автоматический запуск всех сервисов
+
+Рекомендуется использовать PowerShell-скрипты для запуска и остановки всей системы:
+
+```pwsh
+powershell -ExecutionPolicy Bypass -File ../start_all.ps1
+```
+
+Это запустит:
+- MQTT брокер (Docker)
+- C++ REST сервер
+- Python монитор-сервер
+
+Для остановки всех сервисов используйте:
+
+```pwsh
+powershell -ExecutionPolicy Bypass -File ../stop_all.ps1
+```
+
+---
+
+### Ручной запуск (альтернатива)
+
+**Сборка C++ проекта:**
 ```sh
 cmake -S iot-emulator -B build && cmake --build build
 ```
 
-### Run Python monitor server
+**Запуск Python монитор-сервера:**
+```pwsh
+.venv\Scripts\python.exe iot-emulator\monitor\app.py
+```
 
+**Запуск C++ REST сервера:**
+```pwsh
+build\core\Release\rest_server.exe
+```
+
+**Запуск MQTT брокера (Docker):**
 ```sh
-.venv/Scripts/python.exe iot-emulator/monitor/app.py
+docker run -d --name iot-mqtt-broker -p 1883:1883 eclipse-mosquitto
+```
+
+**Остановка брокера:**
+```sh
+docker stop iot-mqtt-broker
+docker rm iot-mqtt-broker
 ```
 
 ## How to run C++ REST API and integrate with Python
