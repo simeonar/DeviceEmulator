@@ -85,18 +85,24 @@ docker run -d --name iot-mqtt-broker -p 1883:1883 eclipse-mosquitto
 - You can use this address in your `devices.yaml` config (see `mqtt.host` and `mqtt.port`).
 - Default topic for temperature sensor: `sensors/temperature`.
 
-To check published messages, you can use any MQTT client, for example:
-
-```sh
-# Subscribe to the topic using mosquitto_sub:
-mosquitto_sub -h 127.0.0.1 -p 1883 -t sensors/temperature
-```
-
 To stop and remove the broker:
 ```sh
 docker stop iot-mqtt-broker
 docker rm iot-mqtt-broker
 ```
+
+## How to check MQTT publishing
+
+To verify that the TemperatureSensor (or any device) is publishing data to the MQTT broker, use the following command (requires Mosquitto tools):
+
+```sh
+mosquitto_sub -h 127.0.0.1 -p 1883 -t sensors/temperature
+```
+
+- This will subscribe to the topic used by the temperature sensor (see `devices.yaml`, usually `sensors/temperature`).
+- When the device is running and publishing, you will see temperature values printed in the terminal.
+
+If you see numbers appearing every few seconds — publishing works!
 
 ## Console usage principles
 
@@ -112,3 +118,16 @@ docker rm iot-mqtt-broker
   - `test` — prints a test confirmation message.
   - `exit`/`quit` — exits interactive mode.
   - Any other command — prints an unknown command message.
+
+## External dependencies: Paho MQTT
+
+This project requires Paho MQTT C and C++ libraries for MQTT device emulation. These are not included in the repository due to licensing and size. You must download and place them manually:
+
+1. Download prebuilt Paho MQTT C for Windows (eclipse-paho-mqtt-c-win64-*) from https://github.com/eclipse/paho.mqtt.c/releases
+2. Download Paho MQTT C++ sources (paho.mqtt.cpp-*) from https://github.com/eclipse/paho.mqtt.cpp/releases
+3. Place both folders in `external/paho/` so you have:
+   - `external/paho/eclipse-paho-mqtt-c-win64-1.3.14/include` and `lib`
+   - `external/paho/paho.mqtt.cpp-1.3.0/include`, `lib`, and `build` (after build)
+4. Build paho.mqtt.cpp as described above before building the main project.
+
+These folders must remain in the project for successful build and linking.

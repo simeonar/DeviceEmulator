@@ -32,3 +32,10 @@ vcpkg/
 *.swo
 .idea/
 .vscode/
+external/*
+
+# Exclude all external dependencies except documentation
+!external/paho/README.md
+
+# Keep paho MQTT dependencies out of git, user must download manually
+# See instructions in README.md
