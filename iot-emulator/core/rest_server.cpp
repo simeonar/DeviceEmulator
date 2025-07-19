@@ -26,6 +26,7 @@ void setup_example_devices() {
             std::shared_ptr<DeviceBase> dev_ptr;
             if (dev_class == "TemperatureSensor") {
                 auto temp = std::make_shared<TemperatureSensor>(protocol);
+                temp->setParametersFromYaml(dev_cfg);
                 if (dev_cfg["mqtt"]) {
                     auto mqtt = dev_cfg["mqtt"];
                     std::string host = mqtt["host"] ? mqtt["host"].as<std::string>() : "127.0.0.1";

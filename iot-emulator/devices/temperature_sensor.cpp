@@ -44,7 +44,12 @@ public:
         mqtt_topic_ = topic;
     }
     void setParametersFromYaml(const YAML::Node& node) {
-        if (!node["parameters"]) return;
+        if (!node["parameters"]) {
+            std::cout << "[TemperatureSensor] No 'parameters' section in YAML node!" << std::endl;
+            return;
+        }
+        std::cout << "[TemperatureSensor] Loading parameters from YAML:" << std::endl;
+        std::cout << "  parameters.IsMap(): " << node["parameters"].IsMap() << ", size: " << node["parameters"].size() << std::endl;
         for (auto it = node["parameters"].begin(); it != node["parameters"].end(); ++it) {
             std::string pname = it->first.as<std::string>();
             const auto& pnode = it->second;
@@ -55,6 +60,7 @@ public:
             cfg.unit = pnode["unit"] ? pnode["unit"].as<std::string>() : "";
             cfg.value = cfg.min;
             parameters_[pname] = cfg;
+            std::cout << "  - " << pname << ": min=" << cfg.min << ", max=" << cfg.max << ", step=" << cfg.step << ", unit=" << cfg.unit << std::endl;
         }
     }
     void randomizeParams() {
@@ -64,6 +70,7 @@ public:
             // Округление к ближайшему step
             double steps = std::round((raw - cfg.min) / cfg.step);
             cfg.value = cfg.min + steps * cfg.step;
+            std::cout << "[TemperatureSensor] Param '" << name << "' generated value: " << cfg.value << " (min=" << cfg.min << ", max=" << cfg.max << ", step=" << cfg.step << ")" << std::endl;
         }
     }
     static std::string getCurrentTimestamp() {
