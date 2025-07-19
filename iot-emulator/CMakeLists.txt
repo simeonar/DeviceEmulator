@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 project(iot_emulator)
 set(CMAKE_CXX_STANDARD 17)
 
+# --- vcpkg integration for yaml-cpp ---
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/../../vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
 find_package(yaml-cpp CONFIG REQUIRED)
 add_subdirectory(core)

@@ -5,4 +5,4 @@ find_package(yaml-cpp CONFIG REQUIRED)
 
 # REST server for device management
 add_executable(rest_server rest_server.cpp httplib.h)
-target_link_libraries(rest_server PRIVATE core nlohmann_json::nlohmann_json yaml-cpp::yaml-cpp)
+target_link_libraries(rest_server PRIVATE core devices nlohmann_json::nlohmann_json yaml-cpp::yaml-cpp)

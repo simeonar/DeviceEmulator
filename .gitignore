@@ -33,6 +33,7 @@ vcpkg/
 .idea/
 .vscode/
 external/*
+iot-emulator/build/*
 
 # Exclude all external dependencies except documentation
 !external/paho/README.md

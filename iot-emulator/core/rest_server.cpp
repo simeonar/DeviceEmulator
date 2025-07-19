@@ -25,7 +25,15 @@ void setup_example_devices() {
             std::string protocol = dev_cfg["protocol"] ? dev_cfg["protocol"].as<std::string>() : "unknown";
             std::shared_ptr<DeviceBase> dev_ptr;
             if (dev_class == "TemperatureSensor") {
-                dev_ptr = std::make_shared<TemperatureSensor>(protocol);
+                auto temp = std::make_shared<TemperatureSensor>(protocol);
+                if (dev_cfg["mqtt"]) {
+                    auto mqtt = dev_cfg["mqtt"];
+                    std::string host = mqtt["host"] ? mqtt["host"].as<std::string>() : "127.0.0.1";
+                    int port = mqtt["port"] ? mqtt["port"].as<int>() : 1883;
+                    std::string topic = mqtt["topic"] ? mqtt["topic"].as<std::string>() : "sensors/temperature";
+                    temp->setMqttConfig(host, port, topic);
+                }
+                dev_ptr = temp;
             } else if (dev_class == "PressureValve") {
                 dev_ptr = std::make_shared<PressureValve>(protocol);
             } else {
