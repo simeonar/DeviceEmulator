@@ -13,7 +13,7 @@ def get_devices():
     devices = []
     for d in bridge.list_devices():
         dev = d.copy()
-        # Получаем сценарии для каждого устройства
+        # Get scenarios for each device
         full = bridge.get_device(dev["id"])
         dev["scenarios"] = full.get("scenarios", []) if full else []
         devices.append(dev)

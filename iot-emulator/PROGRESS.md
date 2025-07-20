@@ -10,9 +10,9 @@
 - [x] Universal DeviceRunner implemented for modular device execution (background thread)
 - [x] DeviceManager refactored to use DeviceRunner for each device
 - [x] Build system and includes refactored for modularity (DeviceRunner in separate file)
-- [x] DeviceBase/TemperatureSensor: поддержка сценариев (getScenarios)
-- [x] Проектирование REST API для управления устройствами и сценариями (Flask)
-- [x] Реализован Flask API (заглушки): список устройств, сценарии, запуск сценария, CRUD сценариев
+- [x] DeviceBase/TemperatureSensor: scenario support (getScenarios)
+- [x] REST API design for device and scenario management (Flask)
+- [x] Flask API implemented (stubs): device list, scenarios, scenario run, scenario CRUD
 - [x] C++ REST API (rest_server) implemented and runs on http://localhost:8081
 - [x] Python backend_bridge integrated with C++ REST API via requests
 - [x] Web and CLI now work with real device backend through REST
@@ -46,7 +46,7 @@
    - Devices publish data via MQTT/REST to IoT Gateway or monitoring server.
    - Python monitor subscribes to device data and displays status in web UI.
    - Use IPC, REST, or MQTT for communication between C++ and Python parts.
-   - [x] Веб-интерфейс и CLI работают через единый REST API (Flask)
+   - [x] Web interface and CLI work through unified REST API (Flask)
 
 6. **Extensibility**
    - New devices: add new class in `devices/`, register in config.

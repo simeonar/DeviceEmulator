@@ -1,11 +1,12 @@
-Структура проекта: модульная и расширяемая
+
+Project structure: modular and extensible
 iot-emulator/
-├── core/                      # Общие компоненты и интерфейсы
-│   ├── device_base.hpp        # Абстрактный класс устройства
-│   ├── simulation_engine.cpp  # Логика симуляций
-│   └── config_loader.cpp      # Загрузка конфигураций
+├── core/                      # Common components and interfaces
+│   ├── device_base.hpp        # Abstract device class
+│   ├── simulation_engine.cpp  # Simulation logic
+│   └── config_loader.cpp      # Configuration loader
 │
-├── protocols/                # Реализация протоколов
+├── protocols/                # Protocol implementations
 │   ├── mqtt/
 │   │   ├── mqtt_device.cpp
 │   │   └── mqtt_client.hpp
@@ -16,48 +17,50 @@ iot-emulator/
 │       ├── rest_device.cpp
 │       └── rest_server.hpp
 │
-├── devices/                  # Конкретные эмуляторы устройств
+├── devices/                  # Concrete device emulators
 │   ├── temperature_sensor.cpp
 │   ├── cnc_machine.cpp
 │   └── pressure_valve.cpp
 │
-├── monitor/                  # Веб-сервер мониторинга
-│   ├── app.py                # Flask/FastAPI сервер
+├── monitor/                  # Monitoring web server
+│   ├── app.py                # Flask/FastAPI server
 │   └── templates/
 │       └── index.html
 │
-├── cli/                      # Консольное приложение
-│   └── main.cpp              # Запуск, выбор устройств, симуляции
+├── cli/                      # Console application
+│   └── main.cpp              # Launch, device selection, simulations
 │
-├── config/                   # Конфигурации устройств и сценариев
+├── config/                   # Device and scenario configurations
 │   ├── devices.yaml
 │   └── scenarios.yaml
 │
-├── docker/                   # Docker-файлы и скрипты
+├── docker/                   # Docker files and scripts
 │   └── Dockerfile
 │
 └── README.md
-⚖️ Разделение C++ и Python
-Язык	Роль в проекте	Почему
-C++	Эмуляция устройств, реализация протоколов	Высокая производительность, контроль над потоками и сетевыми сокетами
-Python	Веб-мониторинг, конфигурация, возможно симуляции	Быстрая разработка, богатые библиотеки, удобство для API и UI
-Пример:
-Устройство на C++ публикует данные через MQTT.
 
-Python-сервер отображает статус устройства и позволяет запускать симуляции через REST API.
+⚖️ C++ and Python separation
+Language	Role in project	Why
+C++	Device emulation, protocol implementation	High performance, thread and socket control
+Python	Web monitoring, configuration, possibly simulations	Rapid development, rich libraries, convenient for API and UI
 
-Java-приложение подключается к эмулятору и логирует поведение.
+Example:
+A device in C++ publishes data via MQTT.
 
-🔄 Взаимодействие между компонентами
-C++-эмуляторы запускаются как процессы или сервисы.
+Python server displays device status and allows running simulations via REST API.
 
-Python-мониторинг общается с ними через IPC, REST или MQTT.
+Java application connects to the emulator and logs behavior.
 
-Консольное приложение управляет запуском и симуляциями.
+🔄 Component interaction
+C++ emulators run as processes or services.
 
-🧪 Расширяемость
-Добавить новое устройство — просто создать новый .cpp в devices/ и зарегистрировать его.
+Python monitoring communicates with them via IPC, REST, or MQTT.
 
-Добавить новый протокол — создать папку в protocols/ и реализовать интерфейс.
+Console application manages launch and simulations.
 
-Добавить сценарий — описать в scenarios.yaml.
+🧪 Extensibility
+Add a new device — just create a new .cpp in devices/ and register it.
+
+Add a new protocol — create a folder in protocols/ and implement the interface.
+
+Add a scenario — describe it in scenarios.yaml.
