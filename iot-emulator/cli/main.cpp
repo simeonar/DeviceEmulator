@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
         std::string exe_path = argv[0];
         std::string base_dir = exe_path.substr(0, exe_path.find_last_of("/\\"));
         std::string yaml_path = base_dir + "/../../../iot-emulator/config/devices.yaml";
-        std::cout << "[DEBUG] Trying to load devices.yaml from: " << yaml_path << std::endl;
+        // std::cout << "[DEBUG] Trying to load devices.yaml from: " << yaml_path << std::endl;
         YAML::Node config = YAML::LoadFile(yaml_path);
         if (!config || config.size() == 0) {
             std::cerr << "[DEBUG] devices.yaml loaded but empty!" << std::endl;
@@ -24,16 +24,15 @@ int main(int argc, char* argv[]) {
         for (auto it = config.begin(); it != config.end(); ++it) {
             std::string dev_name = it->first.as<std::string>();
             std::string dev_class = it->second["class"].as<std::string>();
-            std::cout << "[DEBUG] Registering device: " << dev_name << ", class: " << dev_class << std::endl;
+            // std::cout << "[DEBUG] Registering device: " << dev_name << ", class: " << dev_class << std::endl;
             if (dev_class == "TemperatureSensor") {
                 auto dev = std::make_shared<TemperatureSensor>();
-                std::cout << "[DEBUG] Calling setParametersFromYaml for " << dev_name << std::endl;
+                // std::cout << "[DEBUG] Calling setParametersFromYaml for " << dev_name << std::endl;
                 dev->setParametersFromYaml(it->second);
                 manager.registerDevice(dev_name, dev);
             }
             else if (dev_class == "PressureValve") {
                 auto dev = std::make_shared<PressureValve>();
-                // Если потребуется, можно добавить setParametersFromYaml
                 manager.registerDevice(dev_name, dev);
             }
             // Add other device types here

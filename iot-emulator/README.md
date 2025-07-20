@@ -24,23 +24,25 @@ Modular, extensible emulator for IoT devices with C++ core and Python monitoring
 - Unified user experience in web and CLI
 - Modular, scalable, and maintainable architecture
 
-## DeviceRunner: универсальный запуск устройств
 
-DeviceRunner — это универсальный модуль для запуска любого устройства в отдельном фоновом потоке. Каждый эмулируемый девайс оборачивается в DeviceRunner, который управляет его жизненным циклом (start/stop) и обеспечивает независимую работу устройства в фоне. Это позволяет:
-- Запускать несколько устройств параллельно, каждое в своём потоке
-- Гибко управлять состоянием устройств через DeviceManager
-- Легко расширять систему новыми типами устройств без изменения логики запуска
+## DeviceRunner: universal device runner
 
-**Принцип работы:**
-- Для каждого устройства создаётся объект DeviceRunner, которому передаётся shared_ptr<DeviceBase>.
-- При старте DeviceRunner запускает поток, в котором вызывается device->start() и поддерживается работа устройства (например, публикация данных, эмуляция событий).
-- Остановка устройства корректно завершает поток и освобождает ресурсы.
-- DeviceManager хранит map<имя, shared_ptr<DeviceRunner>> и управляет всеми устройствами через раннеры.
+DeviceRunner is a universal module for running any device in a separate background thread. Each emulated device is wrapped in a DeviceRunner, which manages its lifecycle (start/stop) and ensures independent operation in the background. This allows:
+- Running multiple devices in parallel, each in its own thread
+- Flexible device state management via DeviceManager
+- Easy extension with new device types without changing the runner logic
+
+**How it works:**
+- For each device, a DeviceRunner object is created, receiving a shared_ptr<DeviceBase>.
+- On start, DeviceRunner launches a thread that calls device->start() and maintains device operation (e.g., data publishing, event emulation).
+- Stopping a device cleanly terminates the thread and releases resources.
+- DeviceManager stores a map<name, shared_ptr<DeviceRunner>> and manages all devices via runners.
+
 
 
 ## How to add and configure a device
 
-All устройства описываются в файле `config/devices.yaml`. Пример:
+All devices are described in the `config/devices.yaml` file. Example:
 
 ```yaml
 temperature_sensor:
@@ -66,12 +68,13 @@ pressure_valve:
     - jam
 ```
 
-**Добавить новое устройство:**
-1. Добавьте секцию с уникальным именем (например, `my_device:`).
-2. Укажите класс устройства (`class`), поддерживаемый протокол (`protocol`: mqtt, opcua, rest и др.), порт и параметры протокола.
-3. Для MQTT укажите параметры в секции `mqtt` (host, port, topic).
-4. Для OPC UA — только порт и имя класса.
-5. Добавьте список сценариев (scenarios), если нужно.
+
+**To add a new device:**
+1. Add a section with a unique name (e.g., `my_device:`).
+2. Specify the device class (`class`), supported protocol (`protocol`: mqtt, opcua, rest, etc.), port, and protocol parameters.
+3. For MQTT, specify parameters in the `mqtt` section (host, port, topic).
+4. For OPC UA — only port and class name are needed.
+5. Add a list of scenarios (scenarios) if required.
 
 **Пример для MQTT:**
 ```yaml
@@ -98,27 +101,31 @@ my_opcua_device:
     - opcua_scenario
 ```
 
-После изменения `devices.yaml` перезапустите сервисы для применения изменений.
+
+After editing `devices.yaml`, restart the services to apply changes.
 
 ---
 
 ## How to build and run
 
 
-### Автоматический запуск всех сервисов
 
-Рекомендуется использовать PowerShell-скрипты для запуска и остановки всей системы:
+### Automatic launch of all services
+
+It is recommended to use PowerShell scripts to start and stop the entire system:
 
 ```pwsh
 powershell -ExecutionPolicy Bypass -File ../start_all.ps1
 ```
 
-Это запустит:
-- MQTT брокер (Docker)
-- C++ REST сервер
-- Python монитор-сервер
 
-Для остановки всех сервисов используйте:
+This will start:
+- MQTT broker (Docker)
+- C++ REST server
+- Python monitor server
+
+
+To stop all services, use:
 
 ```pwsh
 powershell -ExecutionPolicy Bypass -File ../stop_all.ps1
@@ -126,29 +133,34 @@ powershell -ExecutionPolicy Bypass -File ../stop_all.ps1
 
 ---
 
-### Ручной запуск (альтернатива)
 
-**Сборка C++ проекта:**
+### Manual launch (alternative)
+
+**Build C++ project:**
 ```sh
 cmake -S iot-emulator -B build && cmake --build build
 ```
 
-**Запуск Python монитор-сервера:**
+
+**Run Python monitor server:**
 ```pwsh
 .venv\Scripts\python.exe iot-emulator\monitor\app.py
 ```
 
-**Запуск C++ REST сервера:**
+
+**Run C++ REST server:**
 ```pwsh
 build\core\Release\rest_server.exe
 ```
 
-**Запуск MQTT брокера (Docker):**
+
+**Run MQTT broker (Docker):**
 ```sh
 docker run -d --name iot-mqtt-broker -p 1883:1883 eclipse-mosquitto
 ```
 
-**Остановка брокера:**
+
+**Stop the broker:**
 ```sh
 docker stop iot-mqtt-broker
 docker rm iot-mqtt-broker

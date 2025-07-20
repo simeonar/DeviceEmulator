@@ -1,13 +1,14 @@
+
 # Progress tracking for DeviceEmulator MQTT integration
 
 ## 2025-07-19
-- Реализована универсальная публикация параметров для TemperatureSensor:
-  - Параметры (имя, min, max, step, unit) задаются в config/devices.yaml
-  - Любое количество параметров
-  - Публикация JSON с таймстэмпом, device, data
-  - Используется nlohmann/json
-- Пример секции parameters добавлен в devices.yaml
-- Проект успешно собирается и работает
+- Implemented universal parameter publishing for TemperatureSensor:
+  - Parameters (name, min, max, step, unit) are set in config/devices.yaml
+  - Any number of parameters
+  - Publishes JSON with timestamp, device, data
+  - Uses nlohmann/json
+- Example of parameters section added to devices.yaml
+- Project builds and works successfully
 
 ## 2025-07-19
 - Added MqttProtocolClient adapter in protocols/mqtt for universal protocol client architecture.
